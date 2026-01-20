@@ -1,6 +1,0 @@
-{
-  "version": "1.0.0",
-  "author": "sceiler",
-  "date": "January 2026",
-  "abstract": "Core software engineering principles for AI coding agents. Contains essential rules covering testing, verification, error handling, code quality, and change management. The fundamental philosophy: never assume code works without verification."
-}

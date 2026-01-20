@@ -6,9 +6,9 @@ Skills follow the [Agent Skills](https://agentskills.io/) format.
 
 ## Available Skills
 
-### software-engineering-fundamentals
+### agent-best-practices
 
-Core software engineering principles that every coding agent should follow. Contains essential rules covering testing, verification, error handling, code quality, and professional development practices.
+Field-tested engineering principles from a decade of software development, IT consulting, and web development. Contains 40+ rules across 12 categories, distilled from real project experience and hundreds of debugging sessions.
 
 **Use when:**
 - Writing any new code
@@ -16,13 +16,23 @@ Core software engineering principles that every coding agent should follow. Cont
 - Debugging issues
 - Reviewing code quality
 - Before committing changes
+- Working with AI coding assistants
 
 **Categories covered:**
-- Testing & Verification (Critical)
-- Error Handling (High)
-- Code Quality (High)
-- Change Management (Medium)
+- Verification & Testing (Critical)
+- Scope Discipline (Critical)
+- Root Cause Analysis (High)
+- Regression Prevention (High)
+- Clarification Over Assumption (High)
+- Staying Current (High)
+- Simplicity & Performance (Medium)
+- Quality Over Quantity (Medium)
+- Workflow & Automation (Medium)
+- Backward Compatibility (Medium)
 - Security Awareness (Medium)
+- AI Collaboration Principles (Medium)
+
+**Core philosophy:** Never assume. Always verify.
 
 ## Installation
 
@@ -33,6 +43,11 @@ npx add-skill sceiler/skills
 ## Usage
 
 Skills are automatically available once installed. The agent will use them when relevant tasks are detected.
+
+**Key triggers:**
+- Keywords like "just", "only", "simple" → scope discipline rules activate
+- Repeated issues → root cause analysis rules activate
+- Framework-specific code → version checking rules activate
 
 ## Skill Structure
 
