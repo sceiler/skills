@@ -8,9 +8,10 @@ Skills follow the [Agent Skills](https://agentskills.io/) format.
 
 ### agent-best-practices
 
-Field-tested engineering principles from a decade of software development, IT consulting, and web development. Contains 40+ rules across 12 categories, distilled from real project experience and hundreds of debugging sessions.
+Field-tested engineering principles. Contains 40+ rules across 12 categories, distilled from real project experience and hundreds of debugging sessions.
 
 **Use when:**
+
 - Writing any new code
 - Making changes to existing code
 - Debugging issues
@@ -19,6 +20,7 @@ Field-tested engineering principles from a decade of software development, IT co
 - Working with AI coding assistants
 
 **Categories covered:**
+
 - Verification & Testing (Critical)
 - Scope Discipline (Critical)
 - Root Cause Analysis (High)
@@ -45,6 +47,7 @@ npx add-skill sceiler/skills
 Skills are automatically available once installed. The agent will use them when relevant tasks are detected.
 
 **Key triggers:**
+
 - Keywords like "just", "only", "simple" → scope discipline rules activate
 - Repeated issues → root cause analysis rules activate
 - Framework-specific code → version checking rules activate
@@ -52,6 +55,7 @@ Skills are automatically available once installed. The agent will use them when 
 ## Skill Structure
 
 Each skill contains:
+
 - `SKILL.md` - Instructions for the agent
 - `metadata.json` - Skill metadata
 

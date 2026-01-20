@@ -1,6 +1,6 @@
 ---
 name: agent-best-practices
-description: Field-tested engineering principles from a decade of software development, IT consulting, and web development. Apply when writing, modifying, or reviewing code. Emphasizes verification over assumption, scope discipline, root cause analysis, staying current, and automation. These principles are distilled from real project experience and hundreds of debugging sessions.
+description: Field-tested engineering principles. Apply when writing, modifying, or reviewing code. Emphasizes verification over assumption, scope discipline, root cause analysis, staying current, and automation. These principles are distilled from real project experience and hundreds of debugging sessions.
 license: MIT
 metadata:
   author: sceiler
