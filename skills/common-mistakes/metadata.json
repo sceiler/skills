@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "author": "sceiler",
+  "date": "February 2026",
+  "abstract": "Concrete wrong/correct examples of common AI coding agent mistakes. Derived from analysis of 500+ real chat sessions across 21 projects. Contains 25+ rules across 8 categories: file awareness, multi-target instructions, deprecated APIs, output formatting, debugging anti-patterns, wrong optimizations, content integrity, and security scope. Each rule provides a specific wrong example and correct alternative."
+}
