@@ -36,6 +36,32 @@ Field-tested engineering principles. Contains 40+ rules across 12 categories, di
 
 **Core philosophy:** Never assume. Always verify.
 
+### common-mistakes
+
+Concrete wrong/correct examples of common AI coding agent mistakes. Derived from analysis of 500+ real chat sessions across 21 projects.
+
+**Use when:**
+
+- Writing or modifying any code
+- Debugging issues
+- Generating formatted output
+- Working with file systems (symlinks, project configs)
+- Applying optimizations
+- Making security-related changes
+
+**Categories covered:**
+
+- File & Project Awareness (Critical)
+- Multi-Target Instructions (Critical)
+- Deprecated & Outdated APIs (High)
+- Output Formatting (High)
+- Debugging Anti-Patterns (High)
+- Wrong Optimizations (High)
+- Content & Data Integrity (Medium)
+- Security Scope (Medium)
+
+**Core format:** Each rule provides a concrete wrong example and the correct alternative.
+
 ## Installation
 
 ```bash
@@ -51,6 +77,8 @@ Skills are automatically available once installed. The agent will use them when 
 - Keywords like "just", "only", "simple" → scope discipline rules activate
 - Repeated issues → root cause analysis rules activate
 - Framework-specific code → version checking rules activate
+- File modifications → symlink and project awareness rules activate
+- Debugging sessions → anti-pattern detection rules activate
 
 ## Skill Structure
 
