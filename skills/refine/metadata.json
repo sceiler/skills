@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "author": "sceiler",
+  "date": "February 2026",
+  "abstract": "Single-pass refinement audit. Invokes all applicable skills to evaluate the current application for performance, UI, UX, and accessibility improvements. Produces a prioritized table of findings sorted by impact with concrete before/after descriptions."
+}
