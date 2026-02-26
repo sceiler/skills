@@ -1,8 +1,6 @@
 ---
 name: refine
 description: Run one refinement pass over the current application using all applicable skills to find performance, UI, and UX improvements.
-disable-model-invocation: true
-argument-hint: "[path or area to focus on]"
 license: MIT
 metadata:
   author: sceiler
