@@ -1,115 +1,113 @@
 # refine
 
-One-command codebase audit. Type `/refine` to run a single evaluation pass that invokes every applicable skill in the current session and produces a prioritized table of improvements.
+Version `2.0.0` turns `refine` into a branch-finishing skill for AI coding agents. It is designed to take the current branch from "work in progress" to "review-ready": inspect the diff, fix issues, verify the branch, and ship the PR.
 
 ## What It Does
 
-`/refine` scans your application and evaluates it against all installed skills that are relevant to your stack. It detects your framework and tooling automatically, then applies each skill's rules to produce a deduplicated, impact-sorted list of findings.
+`refine` reviews the code changes on the current branch, fixes code review issues it finds, runs lint and TypeScript verification, makes sure unit tests are correct and useful, updates README or changelog when needed, then commits, pushes, and creates or updates the PR.
 
-**This is evaluation only** — it will not make any changes to your code.
+## Use It For
 
-## Usage
+- Finishing an in-progress branch before review
+- Cleaning up a PR before merge
+- Catching and fixing branch-local issues in one pass
+- Making sure tests and docs keep up with the code change
 
-Audit the full application:
+## Example Prompts
 
-```
-/refine
-```
+Use natural language that matches your agent:
 
-Audit a specific path or area:
-
-```
-/refine app/dashboard
-/refine components/
-/refine authentication flow
-```
-
-## Output
-
-A prioritized table sorted by impact:
-
-| # | Priority | Category | File(s) | Current | Suggested | Impact |
-|---|----------|----------|---------|---------|-----------|--------|
-| 1 | Critical | Perf | `app/page.tsx` | Client component fetches data on mount | Convert to server component with async data | Eliminates client waterfall, improves LCP |
-| 2 | High | A11y | `components/Button.tsx` | No focus indicator on custom button | Add `focus-visible` ring style | Keyboard users can't see focus |
-| 3 | Medium | UI | `app/layout.tsx` | Fixed max-width doesn't scale | Use responsive container with fluid padding | Better experience on ultrawide displays |
-
-Followed by:
-- **Top 3 wins** — highest impact, lowest effort changes
-- **Stack health** — one sentence overall assessment
-
-### Priority Levels
-
-| Level | Meaning |
-|-------|---------|
-| Critical | Major performance, accessibility, or correctness issue |
-| High | Meaningful UX or performance win with low effort |
-| Medium | Noticeable improvement, moderate effort |
-| Low | Polish or minor optimization |
-
-### Categories
-
-| Category | Covers |
-|----------|--------|
-| Perf | Bundle size, rendering, caching, data fetching |
-| UI | Visual design, layout, responsiveness |
-| UX | Interaction design, navigation, feedback, loading states |
-| A11y | WCAG compliance, keyboard navigation, screen readers |
-| Arch | Architecture, component structure, code organization |
-| DX | Developer experience, types, conventions, maintainability |
-
-## Companion Skills
-
-`/refine` works on its own using `agent-best-practices` from this repo, but it gets significantly more useful with domain-specific skills installed. Install the ones relevant to your stack:
-
-### Next.js / React projects
-
-From [vercel-labs/next-skills](https://github.com/vercel-labs/next-skills):
-
-```bash
-npx skills add vercel-labs/next-skills
+```text
+Refine the current branch and get it ready for PR.
+Review these branch changes, fix any issues, and push the branch.
+Finish this PR properly: lint, typecheck, tests, docs, commit, push, and update the PR.
+Refine this branch, but keep the scope limited to the files already touched.
 ```
 
-Adds `next-best-practices` (file conventions, RSC boundaries, data patterns, metadata, error handling) and `next-cache-components` (PPR, `use cache`, cacheLife/cacheTag).
+## Workflow Expectations
 
-From [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills):
+The skill should:
 
-```bash
-npx skills add vercel-labs/agent-skills
+- Review the branch diff against its base branch
+- Fix real issues instead of stopping at findings
+- Ensure lint is clean
+- Ensure TypeScript is clean
+- Create, update, or delete tests when the behavior change requires it
+- Use Vitest only for unit tests
+- Avoid jsdom and React rendering tests
+- Prefer behavior-focused tests over vanity coverage
+- Update changelog or README when the change warrants it
+- Commit and push the branch
+- Create the PR if needed, or update it if it already exists
+
+## Unit Test Guidance
+
+Bad unit tests inspect implementation details and create fragile coverage theater. For example:
+
+```ts
+// math.ts
+export function add(a: number, b: number) {
+  const result = a + b
+  return result
+}
+
+// math.test.ts
+import { add } from './math'
+import { describe, it, expect, vi } from 'vitest'
+
+describe('add', () => {
+  it('calls internal addition logic', () => {
+    const spy = vi.spyOn(Number.prototype, 'valueOf')
+
+    add(1, 2)
+
+    expect(spy).toHaveBeenCalled()
+  })
+})
 ```
 
-Adds `react-best-practices` (40+ React & Next.js performance rules), `composition-patterns` (compound components, render props, context), and `web-design-guidelines` (100+ UI/UX/accessibility rules).
+Prefer behavior-focused tests instead:
 
-### React Native / Expo projects
+```ts
+// math.ts
+export function add(a: number, b: number) {
+  return a + b
+}
 
-From [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills):
+// math.test.ts
+import { add } from './math'
+import { describe, it, expect } from 'vitest'
 
-```bash
-npx skills add vercel-labs/agent-skills --skill react-native-guidelines
+describe('add', () => {
+  it('returns the sum of two numbers', () => {
+    expect(add(1, 2)).toBe(3)
+  })
+
+  it('handles negative numbers', () => {
+    expect(add(-1, 2)).toBe(1)
+  })
+})
 ```
 
-Adds 16 rules covering mobile performance, architecture, and platform-specific patterns.
+Good unit tests are:
 
-### All projects
+- Focused on input -> output behavior
+- Independent from implementation details
+- Small, deterministic, and fast
+- Targeted at one logical unit
 
-From this repo:
+## Output Shape
 
-```bash
-npx skills add sceiler/skills
-```
+The final result should report:
 
-Adds `agent-best-practices` (40+ engineering rules) and `common-mistakes` (25+ anti-patterns from 500+ real sessions).
+- What was reviewed and fixed
+- What verification ran and whether it passed
+- What test changes were made
+- Whether docs or changelog changed
+- The commit and push status
+- The PR status or link
+- Any blockers that prevented full completion
 
-## How It Selects Skills
+## Notes
 
-1. Reads config files (`package.json`, `next.config.*`, `app.json`, `tsconfig.json`, etc.)
-2. Identifies the framework, language, and rendering strategy
-3. Picks every installed skill that applies to the detected stack
-4. Skips skills that don't apply (e.g., React Native skills for a Next.js project)
-
-## Links
-
-- [Agent Skills Directory](https://skills.sh/) — browse and discover more skills
-- [Agent Skills format](https://agentskills.io/) — the open standard these skills follow
-- [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) — Vercel's official skill collection
-- [vercel-labs/next-skills](https://github.com/vercel-labs/next-skills) — Next.js specific skills
+`refine` is intended to be agent-agnostic, but it assumes the agent can inspect git state, run the repository's verification commands, and interact with the git hosting workflow when credentials and tooling are available.

@@ -8,16 +8,16 @@ Skills follow the [Agent Skills](https://agentskills.io/) format and are listed 
 
 ### refine
 
-One-command codebase audit. Type `/refine` to run a single evaluation pass that invokes every applicable skill in the session and produces a prioritized table of performance, UI, UX, and accessibility improvements.
+Agent-agnostic branch-finishing workflow. Use `refine` when you want an agent to review the current branch, fix gaps, verify the branch, and ship it through commit, push, and PR update.
 
 **Use when:**
 
-- You want a quick health check of your application
-- Before a release, to catch low-hanging fruit
-- After a major feature lands, to spot regressions
-- You want a prioritized backlog of improvements
+- A branch is in progress and needs to be brought to review-ready quality
+- You want review, lint, typecheck, tests, docs, and PR handling done in one pass
+- You want the agent to fix issues, not only report them
+- You want the branch committed, pushed, and synced with a PR
 
-**Works best with these companion skills installed:**
+**Can use these companion skills when available:**
 
 | Skill | Source | Install |
 |-------|--------|---------|
@@ -28,7 +28,7 @@ One-command codebase audit. Type `/refine` to run a single evaluation pass that 
 | `vercel-react-native-skills` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills --skill react-native-guidelines` |
 | `web-design-guidelines` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills --skill web-design-guidelines` |
 
-See [`skills/refine/`](skills/refine/) for full details.
+See [`skills/refine/`](skills/refine/) for the full branch-finishing workflow and usage examples.
 
 ---
 

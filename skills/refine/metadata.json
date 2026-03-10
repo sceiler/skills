@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
   "author": "sceiler",
-  "date": "February 2026",
-  "abstract": "Single-pass refinement audit. Invokes all applicable skills to evaluate the current application for performance, UI, UX, and accessibility improvements. Produces a prioritized table of findings sorted by impact with concrete before/after descriptions."
+  "date": "March 2026",
+  "abstract": "Agent-agnostic branch-finishing skill. Reviews the current branch, fixes code review, lint, typecheck, test, documentation, and PR readiness issues, then commits, pushes, and creates or updates the pull request."
 }
