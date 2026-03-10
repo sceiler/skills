@@ -40,6 +40,62 @@ The skill should:
 - Commit and push the branch
 - Create the PR if needed, or update it if it already exists
 
+## Unit Test Guidance
+
+Bad unit tests inspect implementation details and create fragile coverage theater. For example:
+
+```ts
+// math.ts
+export function add(a: number, b: number) {
+  const result = a + b
+  return result
+}
+
+// math.test.ts
+import { add } from './math'
+import { describe, it, expect, vi } from 'vitest'
+
+describe('add', () => {
+  it('calls internal addition logic', () => {
+    const spy = vi.spyOn(Number.prototype, 'valueOf')
+
+    add(1, 2)
+
+    expect(spy).toHaveBeenCalled()
+  })
+})
+```
+
+Prefer behavior-focused tests instead:
+
+```ts
+// math.ts
+export function add(a: number, b: number) {
+  return a + b
+}
+
+// math.test.ts
+import { add } from './math'
+import { describe, it, expect } from 'vitest'
+
+describe('add', () => {
+  it('returns the sum of two numbers', () => {
+    expect(add(1, 2)).toBe(3)
+  })
+
+  it('handles negative numbers', () => {
+    expect(add(-1, 2)).toBe(1)
+  })
+})
+```
+
+Good unit tests are:
+
+- Focused on input -> output behavior
+- Independent from implementation details
+- Small, deterministic, and fast
+- Targeted at one logical unit
+
 ## Output Shape
 
 The final result should report:
