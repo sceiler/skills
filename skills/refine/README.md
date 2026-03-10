@@ -1,115 +1,46 @@
 # refine
 
-One-command codebase audit. Type `/refine` to run a single evaluation pass that invokes every applicable skill in the current session and produces a prioritized table of improvements.
+Version `2.0.0` rewrites `refine` as an AI coding agent agnostic audit skill. It is designed to work in Claude Code, OpenAI Codex, or similar agents that can inspect a repository and return structured findings.
 
 ## What It Does
 
-`/refine` scans your application and evaluates it against all installed skills that are relevant to your stack. It detects your framework and tooling automatically, then applies each skill's rules to produce a deduplicated, impact-sorted list of findings.
+`refine` runs one focused refinement pass over a repository, feature, or path and returns a prioritized set of improvements. The skill is evaluation-only by default: it audits the codebase, ranks the issues, and stops before implementation unless the user asks for changes.
 
-**This is evaluation only** — it will not make any changes to your code.
+## Use It For
 
-## Usage
+- Whole-repo health checks
+- Targeted audits of a route, feature, page, or subsystem
+- Pre-release cleanup passes
+- Performance, UX, accessibility, architecture, or DX reviews
 
-Audit the full application:
+## Example Prompts
 
-```
-/refine
-```
+Use natural language that matches your agent:
 
-Audit a specific path or area:
-
-```
-/refine app/dashboard
-/refine components/
-/refine authentication flow
-```
-
-## Output
-
-A prioritized table sorted by impact:
-
-| # | Priority | Category | File(s) | Current | Suggested | Impact |
-|---|----------|----------|---------|---------|-----------|--------|
-| 1 | Critical | Perf | `app/page.tsx` | Client component fetches data on mount | Convert to server component with async data | Eliminates client waterfall, improves LCP |
-| 2 | High | A11y | `components/Button.tsx` | No focus indicator on custom button | Add `focus-visible` ring style | Keyboard users can't see focus |
-| 3 | Medium | UI | `app/layout.tsx` | Fixed max-width doesn't scale | Use responsive container with fluid padding | Better experience on ultrawide displays |
-
-Followed by:
-- **Top 3 wins** — highest impact, lowest effort changes
-- **Stack health** — one sentence overall assessment
-
-### Priority Levels
-
-| Level | Meaning |
-|-------|---------|
-| Critical | Major performance, accessibility, or correctness issue |
-| High | Meaningful UX or performance win with low effort |
-| Medium | Noticeable improvement, moderate effort |
-| Low | Polish or minor optimization |
-
-### Categories
-
-| Category | Covers |
-|----------|--------|
-| Perf | Bundle size, rendering, caching, data fetching |
-| UI | Visual design, layout, responsiveness |
-| UX | Interaction design, navigation, feedback, loading states |
-| A11y | WCAG compliance, keyboard navigation, screen readers |
-| Arch | Architecture, component structure, code organization |
-| DX | Developer experience, types, conventions, maintainability |
-
-## Companion Skills
-
-`/refine` works on its own using `agent-best-practices` from this repo, but it gets significantly more useful with domain-specific skills installed. Install the ones relevant to your stack:
-
-### Next.js / React projects
-
-From [vercel-labs/next-skills](https://github.com/vercel-labs/next-skills):
-
-```bash
-npx skills add vercel-labs/next-skills
+```text
+Run a refine pass on this repo.
+Refine the dashboard area and give me the top 10 improvements.
+Audit this app for performance, accessibility, and maintainability issues.
+Do one refinement pass on auth and stop at findings only.
 ```
 
-Adds `next-best-practices` (file conventions, RSC boundaries, data patterns, metadata, error handling) and `next-cache-components` (PPR, `use cache`, cacheLife/cacheTag).
+## Output Shape
 
-From [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills):
+The skill returns one prioritized set of findings with:
 
-```bash
-npx skills add vercel-labs/agent-skills
-```
+- Priority
+- Category
+- File or location
+- Current issue
+- Recommended change
+- Expected impact
 
-Adds `react-best-practices` (40+ React & Next.js performance rules), `composition-patterns` (compound components, render props, context), and `web-design-guidelines` (100+ UI/UX/accessibility rules).
+It also includes:
 
-### React Native / Expo projects
+- Top 3 highest-leverage improvements
+- A one-sentence overall assessment
+- Any assumptions or verification gaps
 
-From [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills):
+## Compatibility
 
-```bash
-npx skills add vercel-labs/agent-skills --skill react-native-guidelines
-```
-
-Adds 16 rules covering mobile performance, architecture, and platform-specific patterns.
-
-### All projects
-
-From this repo:
-
-```bash
-npx skills add sceiler/skills
-```
-
-Adds `agent-best-practices` (40+ engineering rules) and `common-mistakes` (25+ anti-patterns from 500+ real sessions).
-
-## How It Selects Skills
-
-1. Reads config files (`package.json`, `next.config.*`, `app.json`, `tsconfig.json`, etc.)
-2. Identifies the framework, language, and rendering strategy
-3. Picks every installed skill that applies to the detected stack
-4. Skips skills that don't apply (e.g., React Native skills for a Next.js project)
-
-## Links
-
-- [Agent Skills Directory](https://skills.sh/) — browse and discover more skills
-- [Agent Skills format](https://agentskills.io/) — the open standard these skills follow
-- [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) — Vercel's official skill collection
-- [vercel-labs/next-skills](https://github.com/vercel-labs/next-skills) — Next.js specific skills
+`refine` no longer assumes slash commands, platform-specific prompt syntax, or a particular skill runtime. If other relevant skills are available in the current agent session, they can be used to sharpen the audit, but they are optional.

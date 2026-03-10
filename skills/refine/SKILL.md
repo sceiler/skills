@@ -1,69 +1,71 @@
 ---
 name: refine
-description: Run one refinement pass over the current application using all applicable skills to find performance, UI, and UX improvements.
+description: Run a single refinement pass on an existing codebase or feature area. Use when the user wants a prioritized audit of quality, performance, UX, accessibility, and maintainability improvements before implementation.
 license: MIT
 metadata:
   author: sceiler
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Refine
 
-Run a single refinement pass over the current application. Evaluate the codebase using every applicable skill available in this session, then produce a prioritized list of improvements.
+Run one focused refinement pass over the current codebase or a user-specified area. This skill is agent-agnostic: it should work in Claude Code, OpenAI Codex, or any AI coding environment that can inspect files and return structured findings.
 
-## How It Works
+## When To Apply
 
-1. **Detect the stack** — Identify the framework, language, and rendering strategy from config files (`package.json`, `next.config.*`, `app.json`, `tsconfig.json`, etc.)
-2. **Select applicable skills** — From the skills available in this session, pick every one that is relevant to the detected stack. Typical candidates:
-   - `next-best-practices` — file conventions, RSC boundaries, data patterns, metadata
-   - `next-cache-components` — PPR, `use cache`, cacheLife/cacheTag
-   - `vercel-react-best-practices` — React & Next.js performance optimization
-   - `vercel-composition-patterns` — component API design, compound components
-   - `vercel-react-native-skills` — React Native / Expo performance (only if applicable)
-   - `web-design-guidelines` — accessibility, UI/UX audit
-   - `agent-best-practices` — general engineering quality
-3. **Invoke each selected skill** against the codebase to gather findings
-4. **Deduplicate and rank** — Merge overlapping findings, then sort by impact
+- The user asks to refine, audit, polish, tighten up, or review an application or feature.
+- The user wants a prioritized list of improvements instead of immediate implementation.
+- The user wants a broad pass across code quality, UX, performance, architecture, accessibility, or developer experience.
+- The user provides a path, flow, page, or subsystem and wants targeted findings for that scope.
 
-## Scope
+## Inputs
 
-If arguments are provided (`$ARGUMENTS`), limit the analysis to that path or area. Otherwise evaluate the full application.
+- A repository, directory, feature area, or user-provided scope
+- Optional goals such as performance, UX, accessibility, maintainability, or shipping readiness
+- Optional constraints such as "top 5 only" or "frontend only"
 
-## Output Format
+## Workflow
 
-Present findings as a single table sorted by impact (highest first):
+1. Define the scope from the user's request. If no scope is given, inspect the whole project.
+2. Detect the stack from local evidence such as config files, package manifests, framework folders, and build settings.
+3. Select the evaluation lenses that apply to this stack. If other relevant skills are available in the current agent session, use them. If not, continue with direct analysis.
+4. Inspect the highest-signal files first: entrypoints, routes, layouts, shared components, data-fetching code, state boundaries, tests, and config.
+5. Record concrete findings with file references, current behavior, recommended change, and expected impact.
+6. Deduplicate overlapping findings and rank them by severity and payoff.
+7. Stop after the audit unless the user explicitly asks for implementation.
 
-| # | Priority | Category | File(s) | Current | Suggested | Impact |
-|---|----------|----------|---------|---------|-----------|--------|
-| 1 | Critical | Perf | `app/page.tsx` | Client component fetches data on mount | Convert to server component with async data | Eliminates client waterfall, improves LCP |
+## Evaluation Lenses
 
-### Priority levels
+- Correctness and production risk
+- Performance and rendering efficiency
+- Architecture and maintainability
+- UI, UX, and accessibility
+- Testing, observability, and developer workflow
 
-- **Critical** — Major performance, accessibility, or correctness issue
-- **High** — Meaningful UX or performance win with low effort
-- **Medium** — Noticeable improvement, moderate effort
-- **Low** — Polish or minor optimization
+## Output
 
-### Categories
+Return one prioritized set of findings.
 
-- **Perf** — Performance (bundle size, rendering, caching, data fetching)
-- **UI** — Visual design, layout, responsiveness
-- **UX** — Interaction design, navigation, feedback, loading states
-- **A11y** — Accessibility (WCAG compliance, keyboard nav, screen readers)
-- **Arch** — Architecture, component structure, code organization
-- **DX** — Developer experience (types, conventions, maintainability)
+If the interface supports markdown tables, use this format:
+
+| # | Priority | Category | Location | Current | Recommended | Impact |
+|---|----------|----------|----------|---------|-------------|--------|
+
+If tables are awkward in the current interface, use an equivalent numbered list with the same fields.
+
+After the findings, include:
+
+1. Top 3 improvements with the best effort-to-impact ratio
+2. A one-sentence overall assessment of the codebase or scoped area
+3. Any assumptions, blind spots, or files you could not verify
 
 ## Rules
 
-- **One pass only** — Do not start implementing fixes. This is an evaluation.
-- **Be specific** — Reference actual files, components, and line ranges. No vague advice.
-- **Show before and after** — The "Current" and "Suggested" columns should contain concrete descriptions or brief code snippets, not abstract statements.
-- **No duplicates** — If multiple skills flag the same issue, list it once under the most relevant category.
-- **Stay honest** — If the codebase is already well-optimized in an area, say so. Don't manufacture findings.
-- **Cap the list** — Aim for 10–20 actionable findings. Quality over quantity.
-
-## After the Table
-
-Provide a brief summary:
-1. **Top 3 wins** — The three changes that would deliver the most impact for the least effort
-2. **Stack health** — One sentence overall assessment (e.g., "Solid foundation with room for caching improvements")
+- Evaluation only. Do not start fixing issues unless the user asks for implementation.
+- Be specific. Every finding should point to real files, components, or config.
+- Prefer evidence over generic advice. Do not include broad best-practice statements without a concrete trigger in the code.
+- Stay stack-aware. Only raise issues that make sense for the actual framework, runtime, and project shape.
+- Do not invent problems. If an area looks solid, say so.
+- Merge duplicates. If multiple lenses point to the same issue, report it once.
+- Keep the list actionable. Aim for roughly 5 to 15 strong findings unless the user asks for more.
+- Call out missing evidence. If the audit is limited by absent tests, generated files, or inaccessible runtime behavior, state that clearly.

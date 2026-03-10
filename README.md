@@ -8,16 +8,17 @@ Skills follow the [Agent Skills](https://agentskills.io/) format and are listed 
 
 ### refine
 
-One-command codebase audit. Type `/refine` to run a single evaluation pass that invokes every applicable skill in the session and produces a prioritized table of performance, UI, UX, and accessibility improvements.
+Agent-agnostic refinement audit. Use `refine` when you want one structured pass over a codebase, feature, or path to surface the highest-leverage improvements before implementation.
 
 **Use when:**
 
 - You want a quick health check of your application
+- You want a reusable audit workflow that works across Claude Code, Codex, or similar agents
 - Before a release, to catch low-hanging fruit
 - After a major feature lands, to spot regressions
 - You want a prioritized backlog of improvements
 
-**Works best with these companion skills installed:**
+**Can use these companion skills when available:**
 
 | Skill | Source | Install |
 |-------|--------|---------|
@@ -28,7 +29,7 @@ One-command codebase audit. Type `/refine` to run a single evaluation pass that 
 | `vercel-react-native-skills` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills --skill react-native-guidelines` |
 | `web-design-guidelines` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills --skill web-design-guidelines` |
 
-See [`skills/refine/`](skills/refine/) for full details.
+See [`skills/refine/`](skills/refine/) for full details and agent-agnostic usage examples.
 
 ---
 
