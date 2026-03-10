@@ -1,6 +1,6 @@
 ---
 name: refine
-description: Run a single refinement pass on an existing codebase or feature area. Use when the user wants a prioritized audit of quality, performance, UX, accessibility, and maintainability improvements before implementation.
+description: Review and finish the current branch. Use when the user wants the agent to inspect the branch diff, fix code review, lint, typecheck, test, documentation, and PR gaps, then commit, push, and create or update the PR.
 license: MIT
 metadata:
   author: sceiler
@@ -9,63 +9,73 @@ metadata:
 
 # Refine
 
-Run one focused refinement pass over the current codebase or a user-specified area. This skill is agent-agnostic: it should work in Claude Code, OpenAI Codex, or any AI coding environment that can inspect files and return structured findings.
+Run one branch-finishing pass on the current branch. This skill is for taking a branch from "changes exist" to "ready for review or merge": inspect the diff, do a real code review, fix what is wrong, verify the branch, update supporting docs when needed, then commit, push, and create or update the PR.
 
 ## When To Apply
 
-- The user asks to refine, audit, polish, tighten up, or review an application or feature.
-- The user wants a prioritized list of improvements instead of immediate implementation.
-- The user wants a broad pass across code quality, UX, performance, architecture, accessibility, or developer experience.
-- The user provides a path, flow, page, or subsystem and wants targeted findings for that scope.
+- The user asks to refine, finish, polish, or ship the current branch.
+- The user wants the agent to review the code changes and fix issues instead of only reporting findings.
+- The user wants lint, typecheck, tests, docs, changelog, commit, push, and PR handling completed in one pass.
+- The branch is already in progress and needs to be brought to a review-ready state.
 
 ## Inputs
 
-- A repository, directory, feature area, or user-provided scope
-- Optional goals such as performance, UX, accessibility, maintainability, or shipping readiness
-- Optional constraints such as "top 5 only" or "frontend only"
+- The current git branch
+- The diff against its base branch
+- The repository's verification commands and test setup
+- Optional user constraints such as scope limits, commit message preferences, or PR title/body expectations
 
 ## Workflow
 
-1. Define the scope from the user's request. If no scope is given, inspect the whole project.
-2. Detect the stack from local evidence such as config files, package manifests, framework folders, and build settings.
-3. Select the evaluation lenses that apply to this stack. If other relevant skills are available in the current agent session, use them. If not, continue with direct analysis.
-4. Inspect the highest-signal files first: entrypoints, routes, layouts, shared components, data-fetching code, state boundaries, tests, and config.
-5. Record concrete findings with file references, current behavior, recommended change, and expected impact.
-6. Deduplicate overlapping findings and rank them by severity and payoff.
-7. Stop after the audit unless the user explicitly asks for implementation.
+1. Establish branch context. Determine the current branch, its merge base or target branch, the changed files, the repo status, and whether a PR already exists.
+2. Understand the changes before editing. Read the diff and the surrounding code so the review is based on intent and behavior, not just syntax.
+3. Do a real code review of the branch. Look for correctness bugs, regressions, missing edge cases, weak abstractions, incomplete docs, stale files, and missing or low-value tests.
+4. Fix issues that are within scope. Do not stop at review notes if the branch can be improved directly.
+5. Run the repository's lint command and fix all lint errors.
+6. Run the repository's TypeScript checks and fix all warnings and errors. Prefer the project's normal typecheck command; if needed, use `tsc` directly.
+7. Review unit test impact. Create, update, or delete tests when the behavior change warrants it.
+8. Keep unit tests high-signal:
+   - Use Vitest only.
+   - Never use jsdom.
+   - Never use React rendering-based tests.
+   - Test behavior, logic, and observable outcomes rather than implementation details.
+   - Do not add vanity coverage tests that only exercise lines without protecting behavior.
+   - If the code is hard to test without rendering, refactor toward testable logic instead of adding weak UI tests.
+9. Run the relevant test commands and ensure the changed area is actually verified.
+10. Check release completeness. Update changelog, README, or other user-facing docs when behavior, APIs, workflows, setup, or expectations changed.
+11. Prepare the branch for handoff. Ensure the worktree is clean except for intended changes, write a clear commit message, commit, and push the branch.
+12. Sync the pull request. If no PR exists, create one. If it already exists, update the title, body, or checklist when the branch changes make that necessary.
+13. If a required step is blocked by missing tooling, missing permissions, or missing repository conventions, state the blocker clearly and complete the rest.
 
-## Evaluation Lenses
+## Review Priorities
 
-- Correctness and production risk
-- Performance and rendering efficiency
-- Architecture and maintainability
-- UI, UX, and accessibility
-- Testing, observability, and developer workflow
+- Correctness and regression risk
+- Lint and type safety
+- Test quality and behavioral coverage
+- Documentation and release completeness
+- PR readiness and branch hygiene
 
 ## Output
 
-Return one prioritized set of findings.
+Return a concise shipping summary that includes:
 
-If the interface supports markdown tables, use this format:
-
-| # | Priority | Category | Location | Current | Recommended | Impact |
-|---|----------|----------|----------|---------|-------------|--------|
-
-If tables are awkward in the current interface, use an equivalent numbered list with the same fields.
-
-After the findings, include:
-
-1. Top 3 improvements with the best effort-to-impact ratio
-2. A one-sentence overall assessment of the codebase or scoped area
-3. Any assumptions, blind spots, or files you could not verify
+1. What issues were found in the branch and what was fixed
+2. What verification was run and whether it passed
+3. What test changes were made and why
+4. Whether docs or changelog were updated
+5. The commit hash and push status
+6. The PR status or link
+7. Any remaining risks or blockers
 
 ## Rules
 
-- Evaluation only. Do not start fixing issues unless the user asks for implementation.
-- Be specific. Every finding should point to real files, components, or config.
-- Prefer evidence over generic advice. Do not include broad best-practice statements without a concrete trigger in the code.
-- Stay stack-aware. Only raise issues that make sense for the actual framework, runtime, and project shape.
-- Do not invent problems. If an area looks solid, say so.
-- Merge duplicates. If multiple lenses point to the same issue, report it once.
-- Keep the list actionable. Aim for roughly 5 to 15 strong findings unless the user asks for more.
-- Call out missing evidence. If the audit is limited by absent tests, generated files, or inaccessible runtime behavior, state that clearly.
+- Review the actual branch diff, not just the working tree.
+- Fix issues when feasible; do not stop at a findings-only audit unless the user asks for that mode.
+- Keep changes scoped to making the branch correct, complete, and reviewable.
+- Never claim success without running the relevant verification commands.
+- Prefer project-native lint, typecheck, and test commands over guessed commands.
+- Use Vitest for unit tests. Do not introduce jsdom, React Testing Library, or browser-style rendering tests under this skill.
+- Favor testable business logic and behavior. Avoid snapshot-heavy, implementation-coupled, or vanity coverage tests.
+- Update README and changelog only when the branch materially changes behavior, APIs, setup, or user-facing expectations.
+- Do not create a commit or PR with known failing lint, typecheck, or required tests unless the user explicitly accepts that state.
+- Do not force-push or rewrite history unless the user asks for it.

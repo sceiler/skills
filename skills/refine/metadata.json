@@ -2,5 +2,5 @@
   "version": "2.0.0",
   "author": "sceiler",
   "date": "March 2026",
-  "abstract": "Agent-agnostic refinement audit. Runs one focused evaluation pass over a repository or feature area and returns prioritized findings across quality, performance, UX, accessibility, and maintainability without assuming a specific coding agent interface."
+  "abstract": "Agent-agnostic branch-finishing skill. Reviews the current branch, fixes code review, lint, typecheck, test, documentation, and PR readiness issues, then commits, pushes, and creates or updates the pull request."
 }
