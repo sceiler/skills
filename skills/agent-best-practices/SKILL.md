@@ -273,9 +273,9 @@ Follow WCAG guidelines to ensure usability across all ability levels and devices
 ## 9. Workflow & Automation (MEDIUM)
 
 ### `workflow-branch-always`
-**Never commit directly to main.**
+**Never commit directly to the default or protected branch.**
 
-Create a new branch BEFORE writing ANY code. Use descriptive names: `feature/add-search`, `fix/header-alignment`, `refactor/api-utils`. Committing directly to main is forbidden unless explicitly permitted.
+Verify the repository's default branch before naming it in commands, docs, commits, or PRs. Create a new branch BEFORE writing ANY code. Use descriptive names: `feature/add-search`, `fix/header-alignment`, `refactor/api-utils`. Committing directly to the default or protected branch is forbidden unless explicitly permitted.
 
 ### `workflow-test-before-commit`
 **Run tests BEFORE every commit.**
@@ -350,8 +350,10 @@ Block malicious requests (probing for PHP vulnerabilities, DDoS) at the edge/fir
 
 ## 12. AI Collaboration Principles (MEDIUM)
 
-### `ai-claude-md-is-essential`
-**Create a project-specific instruction file (CLAUDE.md) that the agent reads at every session.**
+### `ai-project-instructions-are-essential`
+**Create and maintain the project-specific agent instruction file that the repo uses canonically.**
+
+Use the repository's existing convention, such as `AGENTS.md`, `CLAUDE.md`, or another documented instruction file. If both exist, identify the canonical source before editing.
 
 Include:
 - Workflow rules (with strong imperative language at the beginning)
@@ -425,6 +427,6 @@ These principles are distilled from real experience—not theory:
 9. **Automate workflows** - Branch, test, commit, PR
 10. **Maintain compatibility** - Preserve existing links
 11. **Think security** - Validate input, block at edge
-12. **Collaborate effectively** - Use CLAUDE.md, describe outcomes, remain the architect
+12. **Collaborate effectively** - Use the repo's canonical agent instructions, describe outcomes, remain the architect
 
 These aren't theoretical guidelines—they're lessons learned from hundreds of debugging sessions, regressions, and fixes that didn't actually fix anything until properly verified.
