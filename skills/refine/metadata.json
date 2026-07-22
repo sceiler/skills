@@ -1,6 +1,6 @@
 {
-  "version": "2.0.0",
+  "version": "3.0.0",
   "author": "sceiler",
-  "date": "March 2026",
-  "abstract": "Agent-agnostic branch-finishing skill. Reviews the current branch, fixes code review, lint, typecheck, test, documentation, and PR readiness issues, then commits, pushes, and creates or updates the pull request."
+  "date": "July 2026",
+  "abstract": "Repository-agnostic branch-finishing skill. Reviews and fixes the current branch, runs project-native verification, applies the appropriate test layers, updates supporting documentation when warranted, then commits, pushes, and creates or updates the pull request."
 }

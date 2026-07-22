@@ -1,432 +1,204 @@
 ---
 name: agent-best-practices
-description: Field-tested engineering principles. Apply when writing, modifying, or reviewing code. Emphasizes verification over assumption, scope discipline, root cause analysis, staying current, and automation. These principles are distilled from real project experience and hundreds of debugging sessions.
+description: Apply evidence-based engineering practices when writing, modifying, debugging, or reviewing code. Use for implementation and code-review tasks that require repository awareness, proportionate verification, scope discipline, root-cause analysis, current documentation, regression prevention, secure handling, and careful git or external-state operations.
 license: MIT
 metadata:
   author: sceiler
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Agent Best Practices
 
-Field-tested principles from a decade of software development, IT consulting, and web development. These rules are distilled from real project experience, hundreds of debugging sessions, and patterns observed across 167+ chat histories with AI coding assistants.
+Use evidence from the real repository and runtime. Verify claims, respect the user's scope and authority, and prefer the smallest correct change.
 
-## Core Philosophy
+## 1. Establish Context Before Acting
 
-**Never assume. Always verify.**
+### `context-read-the-repo`
 
-Code that hasn't been tested is broken code you haven't discovered yet. A fix you haven't verified isn't a fix—it's a hypothesis.
+Read the repository's canonical agent instructions, relevant documentation, manifests, configuration, and surrounding code before proposing or making changes.
 
----
+### `context-check-current-state`
 
-## 1. Verification & Testing (CRITICAL)
+Inspect the actual state involved in the task:
 
-### `verify-never-assume`
-**Never say "fixed" without running verification.**
+- Git branch, status, diff, base branch, and unrelated worktree changes
+- Installed dependency and runtime versions
+- Existing scripts, test setup, deployment configuration, and environment boundaries
+- Current official documentation when APIs or platform behavior can drift
 
-Don't claim something works until you've proven it. Run the build, run the tests, visually check the output.
+Do not edit an installed copy, generated artifact, or lookalike directory when the source of truth is elsewhere.
 
-- For code changes: run `build` and `test` commands
-- For UI changes: describe what to visually verify
-- For data changes: show sample output proving correctness
-- If verification cannot be done locally, say so explicitly
-- Ask user to confirm fix works before moving to next task
+### `context-distinguish-authority`
 
-### `verify-all-environments`
-**Solutions must work everywhere, not just locally.**
+Separate inspection from mutation. A request to explain, review, diagnose, or verify does not by itself authorize code changes, commits, pushes, deployments, configuration writes, or messages to third parties.
 
-"Works on my machine" is not sufficient. Consider:
+## 2. Verify in Proportion to Risk
 
-- Environment variables: verify they exist in ALL environments (local, CI, production)
-- Build behavior: local build ≠ CI build (different env, caching, timing)
-- Platform differences: Windows, macOS, and Linux behave differently
-- Version differences: Node.js version on local must match deployment
-- Note when something "works locally" is not sufficient verification
+### `verify-before-claiming`
 
-### `verify-test-after-changes`
-**Always run tests after making changes.**
+Never call a change fixed or complete without relevant evidence. A plausible patch is a hypothesis until it has been exercised.
 
-Never assume your change is safe. Run the existing test suite to catch regressions. If tests don't exist, this is a signal to write them.
+### `verify-use-native-checks`
 
-### `verify-manual-check`
-**Automated tests are not enough.**
+Use the repository's own commands and required checks. Run targeted checks during iteration and the broader required suite before handoff when practical.
 
-Tests catch regressions, but you must also verify actual behavior matches intent. Run the code, check the output, confirm it does what was requested.
+Choose checks that match the change:
 
-### `verify-build-succeeds`
-**A passing test suite means nothing if the project doesn't build.**
+- Code: lint, static analysis or typecheck, tests, and build as applicable
+- UI: real browser behavior at implicated viewports, plus console and network errors
+- API: real requests covering relevant success and failure paths
+- Data: representative input and output that prove the calculation or transformation
+- Deployment: the actual preview or production artifact when deployment is in scope
 
-Always run the build command before considering work complete. TypeScript errors, lint errors, and build failures must be resolved. Zero tolerance for lint/TypeScript errors.
+Do not invent a new test framework or run irrelevant expensive checks solely to satisfy a generic checklist.
 
----
+### `verify-report-limits`
 
-## 2. Scope Discipline (CRITICAL)
+If a check cannot run because of time, tooling, credentials, environment, or missing infrastructure, state exactly what was and was not verified. Do not turn an inaccessible environment into a claim that the implementation works everywhere.
 
-### `scope-respect-keywords`
-**"Just", "only", "simple" = minimum viable change ONLY.**
+### `verify-separate-preexisting-failures`
 
-When you see these keywords, limit yourself to the EXACT request:
+Distinguish regressions caused by the task from pre-existing failures. Fix task-related failures. Report unrelated failures rather than silently expanding scope unless they block the requested outcome.
 
-| Keyword | Required Response |
-|---------|-------------------|
-| "just", "only", "simple", "don't add" | Limit to EXACT request, no extras |
-| "check", "verify", "test" | MUST execute verification and report results |
-| "carefully", "thoroughly" | Extra testing, full verification |
-| "again", "still", same issue repeated | Stop guessing, do root-cause analysis |
+## 3. Respect Scope and Existing Work
 
-Example: User says "just add schema SEO breadcrumbs" → do NOT propose full visual breadcrumb UI components.
+### `scope-honor-the-request`
 
-### `scope-no-extras`
-**Do NOT add improvements, refactoring, or "nice to haves".**
+Treat words such as "only," "just," "simple," and "do not change" as explicit boundaries. Complete the requested outcome without unrelated refactors, features, dependencies, or cleanup.
 
-If something seems like it should be done, mention it as a suggestion but don't implement unless asked.
+### `scope-preserve-user-changes`
 
-- A bug fix doesn't need surrounding code cleaned up
-- A simple feature doesn't need extra configurability
-- Three similar lines of code is better than a premature abstraction
-- Don't add error handling for scenarios that can't happen
-- "Heading is too long and flows over" → minimal CSS fix only, not component refactor
+Assume existing worktree changes belong to the user unless proven otherwise. Do not overwrite, revert, reformat, commit, or include unrelated changes.
 
-### `scope-suggest-dont-implement`
-**If you see potential improvements, mention them—don't do them.**
+### `scope-suggest-separately`
 
-Your job is to complete the requested task. Additional improvements should be proposed for the user to approve, not silently implemented.
+Mention useful follow-up work separately. Do not implement it without authorization.
 
----
+### `scope-no-implicit-external-actions`
 
-## 3. Root Cause Analysis (HIGH)
+Do not infer permission for commits, pushes, pull requests, deployments, production changes, account configuration, destructive operations, or third-party communication from a narrower request.
 
-### `root-cause-stop-guessing`
-**If the same issue appears twice, STOP making surface-level fixes.**
+## 4. Find Root Causes
 
-When a fix doesn't work:
+### `root-cause-trace-the-origin`
 
-1. Don't try another quick fix
-2. Perform deep investigation
-3. Trace the issue to its actual origin (state management, CSS specificity, data flow)
-4. Ask for diagnostic information if needed
-5. Don't guess repeatedly—investigate systematically
+Trace symptoms through state, data flow, call sites, configuration, dependencies, and runtime behavior. Issues often surface far from their source.
 
-Real example: Mobile menu focus state persisting after close took 4 messages to fix because surface-level fixes didn't address the real problem.
+### `root-cause-stop-repeating-fixes`
 
-### `root-cause-trace-origin`
-**Find where the problem actually starts.**
+When an issue survives one attempted fix or repeats, stop applying surface patches. Reproduce it, inspect evidence, isolate the failing layer, and test the causal hypothesis.
 
-Issues often manifest far from their source:
+### `root-cause-validate-data-assumptions`
 
-- State management bugs appear as UI glitches
-- Data model issues appear as wrong calculations
-- CSS specificity problems cascade to multiple components
-- Import order issues cause mysterious runtime errors
+State and verify assumptions such as cumulative versus incremental metrics, uniqueness, ordering, timezone, nullability, and environment-specific behavior before implementing derived logic.
 
-### `root-cause-investigate-implausible`
-**When values seem implausible, investigate the source data first.**
+## 5. Resolve Ambiguity Responsibly
 
-Don't trust outputs that don't make sense. If a dashboard shows 916 views for a day but individual blog posts show far fewer, something is wrong with the data model (cumulative vs. daily totals), not the display.
+### `clarify-investigate-first`
 
-### `root-cause-data-assumptions`
-**Explicitly state data model assumptions before writing aggregation code.**
+Resolve discoverable questions from repository state, current documentation, and safe read-only checks before asking the user.
 
-Cumulative vs. incremental metrics must be explicitly clarified upfront. Verify calculations with real sample data before declaring completion.
+### `clarify-ask-when-material`
 
----
+Ask when a missing choice would materially change the result, scope, architecture, user experience, cost, security posture, or external state. Otherwise make a reasonable, reversible assumption and state it.
 
-## 4. Regression Prevention (HIGH)
+Do not block routine progress on preferences that can be inferred safely. Do not guess when the wrong assumption would be costly or difficult to undo.
 
-### `regression-consider-side-effects`
-**Before any change, consider what else might be affected.**
+## 6. Prevent Regressions
 
-Changes cascade. Before editing:
+### `regression-trace-consumers`
 
-- CSS/styling changes: check all components using same classes/variables/tokens
-- Shared utilities: check all consumers
-- Data model changes: trace through all usages
-- API changes: verify all callers
+Before changing a shared utility, schema, style, API, route, configuration value, or public identifier, find its consumers and compatibility requirements.
 
-Real examples of regressions:
-- Styling fixes caused OG images to break
-- Title formatting fixes caused rendering issues
-- Heading colors changed after an unrelated fix
+### `regression-test-behavior`
 
-### `regression-run-full-suite`
-**Run the full test suite, not just tests for the changed code.**
+Test observable behavior and meaningful boundaries instead of implementation details or vanity coverage. Preserve canonical links and public contracts unless the task explicitly changes them; add migration or redirect paths when required.
 
-Your change might break something unrelated. The test suite exists to catch this.
+### `regression-check-real-surfaces`
 
-### `regression-mention-verification-areas`
-**Explicitly mention what areas might need manual verification after changes.**
+Automated checks do not replace runtime verification when the change is user-visible or environment-sensitive. Verify the actual surface implicated by the request.
 
-When completing a task, list the areas that could be affected and should be checked.
+## 7. Stay Current Without Forcing Upgrades
 
----
+### `current-match-installed-versions`
 
-## 5. Clarification Over Assumption (HIGH)
+Check manifests and lockfiles before using framework or library APIs. Prefer version-matched documentation, installed types, and source over remembered syntax.
 
-### `clarify-ask-before-acting`
-**When request is ambiguous, ASK before acting.**
+### `current-use-primary-sources`
 
-Good clarifying questions:
+Use current official documentation, release notes, package repositories, and live platform behavior for unstable or recently changed features. Treat examples for other major versions as patterns, not proof.
 
-- "Do you want X or Y approach?"
-- "Should I also include Z or just focus on X?"
-- "I want to confirm: you're asking for [specific interpretation], correct?"
+### `current-upgrade-only-with-reason`
 
-Real example: Biography tone—user wanted "blend of personal and professional" but agent assumed "personal" only.
+Do not update dependencies merely because newer versions exist. Upgrade when the requested outcome, compatibility, security, or measured performance justifies it, and verify migration impact.
 
-### `clarify-especially-for`
-**Always clarify for: design decisions, scope boundaries, and user preferences.**
+## 8. Prefer Simple, Measurable Quality
 
-Never assume:
+### `quality-smallest-correct-change`
 
-- Design direction (visual UI vs. schema-only)
-- Tone and style (professional vs. casual)
-- Scope boundaries (fix this one thing vs. fix related issues too)
-- Technology preferences (which library, which approach)
-- User's background, timeline, or personal preferences
+Prefer the smallest change that fully solves the problem. Avoid speculative abstraction, defensive code for impossible states, and configuration that has no current consumer.
 
----
+### `quality-measure-performance`
 
-## 6. Staying Current (HIGH)
+Measure before optimizing. Consider code, configuration, framework versions, caching, infrastructure, and hardware as competing explanations; choose based on evidence rather than ideology.
 
-### `current-update-dependencies`
-**Reject "never change a running system" mentality.**
+### `quality-accessible-and-complete`
 
-Keeping dependencies updated provides:
+Treat accessibility, input validation, error handling, and complete syntax as part of correctness. Make snippets and patches unambiguous in their stated context.
 
-- Security patches
-- Performance improvements
-- Access to new capabilities
-- Better developer tooling
+## 9. Use Git and Automation Deliberately
 
-Outdated dependencies accumulate technical debt that compounds over time. Automate minor/patch updates; reserve major versions for manual review.
+### `workflow-honor-repo-conventions`
 
-### `current-check-versions`
-**Always check versions before implementing features.**
+For code changes, determine the repository's branching and review workflow. Avoid committing directly to a default or protected branch unless explicitly permitted. Read-only tasks do not require creating or switching branches.
 
-Framework APIs change between versions:
+### `workflow-commit-only-in-scope`
 
-- Check `package.json` for installed versions
-- Confirm which router/paradigm is being used (App Router vs Pages Router)
-- App Router: No direct `<head>`, use `generateMetadata` instead
-- Reference documentation for the specific version
-- When in doubt about approach, ask which pattern the user prefers
+Commit, push, or create a pull request only when the user request or named workflow includes those actions. Keep commits cohesive and exclude unrelated user changes.
 
-### `current-leverage-framework-updates`
-**Framework and tooling updates often yield significant wins without code changes.**
+### `workflow-avoid-destructive-history`
 
-Real example: Upgrading Next.js 15 → 16 yielded 24-second build time reduction (82s → 58s) without code changes. Infrastructure improvements are leverage.
+Do not force-push, rewrite history, discard changes, delete branches, merge, or deploy unless the task clearly authorizes that operation and the exact target is verified.
 
----
+### `workflow-automate-repetition`
 
-## 7. Simplicity & Performance (MEDIUM)
+Suggest automation for repeated, error-prone work. Implement it only when it is within scope and the maintenance cost is justified.
 
-### `simple-content-over-flash`
-**Focus on content over flashy features.**
+## 10. Protect Security Boundaries
 
-Minimal, clean design eliminates distractions. Readers should concentrate on substance rather than visual embellishment.
+### `security-never-expose-secrets`
 
-### `simple-measure-everything`
-**"What gets measured gets improved."**
+Never commit, print, quote, or return credentials. Resolve environment and authentication boundaries before declaring a secret missing or invalid.
 
-Use performance monitoring tools:
+### `security-validate-untrusted-input`
 
-- Lighthouse / PageSpeed Insights
-- Framework-specific analytics (Vercel Speed Insights)
-- Build time tracking across deployments
+Validate data from users, APIs, files, environment variables, tools, and generated output at the appropriate trust boundary.
 
-Track changes systematically to identify what delivers real impact versus marginal gains.
+### `security-use-least-privilege`
 
-### `simple-hardware-over-clever-code`
-**Slow machines are a tax you pay every day.**
+Prefer narrowly scoped credentials, permissions, network access, and infrastructure controls. Do not weaken security controls merely to make a test pass.
 
-Sometimes throwing money at the problem (faster CI machines, better hardware) is the correct and cheapest solution long-term. Don't over-optimize code when infrastructure upgrades solve the problem.
+## 11. Collaborate Clearly
 
-### `simple-infrastructure-first`
-**"Almost all meaningful build time improvements came from upgrading software and using faster hardware, not from changing application code."**
+### `collaboration-use-canonical-instructions`
 
-Try framework upgrades, tooling updates, and hardware improvements before complex code optimization.
+Read and follow the repository's canonical instruction file. Update durable instructions only when the task calls for it, and avoid duplicating conflicting rules across files.
 
----
+### `collaboration-lead-with-outcomes`
 
-## 8. Quality Over Quantity (MEDIUM)
+Report what changed, what evidence proves it, what remains uncertain, and where the result can be reviewed. Separate confirmed findings from hypotheses and recommendations.
 
-### `quality-fewer-high-value`
-**Fewer, thoroughly researched, high-value outputs surpass frequent low-quality ones.**
+### `collaboration-surface-material-tradeoffs`
 
-Each piece of work should genuinely serve its purpose. Don't rush to produce more; focus on producing better.
+Propose architecture choices with concrete tradeoffs. Ask for user direction when the choice is consequential; proceed with a safe, reversible default when it is not.
 
-### `quality-accessible`
-**Accessibility is mandatory, not optional.**
+## Completion Checklist
 
-Follow WCAG guidelines to ensure usability across all ability levels and devices.
-
-### `quality-syntactically-valid`
-**Every code suggestion must be syntactically valid and complete.**
-
-- Don't suggest partial code without surrounding context
-- Test edge cases, not just the happy path
-- Trace through logic mentally before proposing changes
-- When suggesting regex/logic changes, mentally trace through the exact pattern
-
----
-
-## 9. Workflow & Automation (MEDIUM)
-
-### `workflow-branch-always`
-**Never commit directly to the default or protected branch.**
-
-Verify the repository's default branch before naming it in commands, docs, commits, or PRs. Create a new branch BEFORE writing ANY code. Use descriptive names: `feature/add-search`, `fix/header-alignment`, `refactor/api-utils`. Committing directly to the default or protected branch is forbidden unless explicitly permitted.
-
-### `workflow-test-before-commit`
-**Run tests BEFORE every commit.**
-
-NEVER assume code works. Prove it. Run unit tests, then commit.
-
-### `workflow-commit-incrementally`
-**Commit after EACH completed task, not in batches.**
-
-Small, atomic commits create clean git history and make reverting easier. Make a local commit immediately after completing each todo item.
-
-### `workflow-pr-when-done`
-**Create a Pull Request when work is complete.**
-
-After pushing, automatically create a PR. PRs enable review, discussion, and CI verification before merging.
-
-### `workflow-automate-repetitive`
-**Automate tedious routine tasks.**
-
-If you do something manually more than a few times, it should be scripted or automated:
-
-- Dependency updates (daily for minor/patch, weekly for actions)
-- Build and deployment
-- Testing workflows
-- Monitoring and alerting
-
-Reduced friction encourages regular maintenance.
-
----
-
-## 10. Backward Compatibility (MEDIUM)
-
-### `compat-preserve-links`
-**Preserve existing canonical links.**
-
-When restructuring URLs or identifiers:
-
-- Maintain backward compatibility for existing links
-- Set up redirects for changed paths
-- Never break bookmarks or external references (SEO impact)
-
-### `compat-plan-for-duplicates`
-**Never assume uniqueness of metadata.**
-
-When generating identifiers from content (slugs, IDs):
-
-- Plan for duplicate values upfront
-- Use guaranteed-unique properties (database IDs) as fallbacks
-- Automate collision detection
-- First occurrence: clean slug; subsequent: append unique suffix
-
----
-
-## 11. Security Awareness (MEDIUM)
-
-### `security-no-secrets-in-code`
-**Never commit secrets or credentials.**
-
-API keys, passwords, tokens—none of these belong in code. Use environment variables or secret management systems.
-
-### `security-validate-input`
-**Validate all external input.**
-
-Never trust data from users, APIs, files, or environment variables. Validate before using.
-
-### `security-block-at-edge`
-**Implement defensive rules at infrastructure level, not just application level.**
-
-Block malicious requests (probing for PHP vulnerabilities, DDoS) at the edge/firewall before they reach your application. Zero-trust for unexpected protocols—if your app is Next.js, any `.php` request is automatically suspicious.
-
----
-
-## 12. AI Collaboration Principles (MEDIUM)
-
-### `ai-project-instructions-are-essential`
-**Create and maintain the project-specific agent instruction file that the repo uses canonically.**
-
-Use the repository's existing convention, such as `AGENTS.md`, `CLAUDE.md`, or another documented instruction file. If both exist, identify the canonical source before editing.
-
-Include:
-- Workflow rules (with strong imperative language at the beginning)
-- Build commands
-- Architecture overview
-- Coding patterns
-
-This consistency creates predictable output.
-
-### `ai-outcome-over-specification`
-**Describe what needs to happen, not every implementation detail.**
-
-Your role becomes strategic direction-setting, not micro-management. AI amplifies whatever level of understanding you bring to the table.
-
-### `ai-you-remain-architect`
-**Architecture choices need human input.**
-
-When multiple valid approaches exist, the agent proposes solutions but needs steering toward your preferred direction. You provide the strategic decisions.
-
-### `ai-leverage-external-knowledge`
-**Connect to live documentation sources rather than relying on potentially outdated training data.**
-
-Use MCP servers for current platform information. Domain-specific knowledge (like optimization patterns from real codebases) compounds results better than generic advice.
-
-### `ai-embrace-iteration`
-**Complex features take multiple commits to perfect.**
-
-AI maintains context, remembers previous attempts, and builds progressively. Tests enable confident iteration by creating a growing safety net.
-
----
-
-## Quick Reference Checklist
-
-Before completing any task:
-
-- [ ] Did I understand the exact scope? (watch for "just", "only", "simple")
-- [ ] Did I verify the fix actually works? (build, test, visual check)
-- [ ] Could this change affect anything else? (regressions)
-- [ ] Am I using the correct API for this framework version?
-- [ ] Do environment variables exist everywhere they're needed?
-- [ ] If this is a repeated issue, did I do root-cause analysis?
-- [ ] Did I ask clarifying questions for ambiguous requests?
-- [ ] Is my data logic correct? (cumulative vs. incremental, sample verification)
-
----
-
-## Keyword Response Guide
-
-| User Says | Your Response |
-|-----------|---------------|
-| "just", "only", "simple", "don't add/change" | Minimum viable change ONLY |
-| "check", "verify", "test", "double-check" | MUST execute verification and report results |
-| "carefully", "thoroughly", "be careful" | Extra testing, full verification before completion |
-| "again", "still", same issue repeated | Stop guessing, do root-cause analysis |
-| "try again" | Previous approach failed, need different strategy |
-
----
-
-## Summary
-
-These principles are distilled from real experience—not theory:
-
-1. **Verify everything** - Never assume code works
-2. **Respect scope** - Do what's asked, nothing more
-3. **Find root causes** - Don't apply surface fixes repeatedly
-4. **Prevent regressions** - Consider side effects before changes
-5. **Clarify ambiguity** - Ask before assuming
-6. **Stay current** - Update dependencies, leverage frameworks
-7. **Keep it simple** - Measure, optimize infrastructure first
-8. **Prioritize quality** - Fewer, better outputs
-9. **Automate workflows** - Branch, test, commit, PR
-10. **Maintain compatibility** - Preserve existing links
-11. **Think security** - Validate input, block at edge
-12. **Collaborate effectively** - Use the repo's canonical agent instructions, describe outcomes, remain the architect
-
-These aren't theoretical guidelines—they're lessons learned from hundreds of debugging sessions, regressions, and fixes that didn't actually fix anything until properly verified.
+- [ ] Did I inspect the real repository, versions, and affected surfaces?
+- [ ] Did I stay within the requested authority and preserve unrelated work?
+- [ ] Did I address the root cause rather than only the symptom?
+- [ ] Did I use current, version-appropriate sources where behavior can drift?
+- [ ] Did I run relevant repository-native verification and report its limits?
+- [ ] Did I check regression, compatibility, accessibility, and security impact?
+- [ ] Did I avoid unauthorized git, deployment, configuration, and third-party actions?
+- [ ] Is the final report concrete, evidence-backed, and easy to review?

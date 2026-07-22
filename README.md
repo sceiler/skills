@@ -6,14 +6,30 @@ Skills follow the [Agent Skills](https://agentskills.io/) format and are listed 
 
 ## Available Skills
 
+### vercel-ai-stack
+
+Documentation-first workflow for building, reviewing, configuring, deploying, and validating applications across the Vercel AI stack. It routes agents to current nested documentation and version-matched local sources instead of relying on stale model knowledge.
+
+**Use when:**
+
+- Working with Next.js, AI SDK, AI Gateway, Workflow SDK, Vercel Connect, Eve, Vercel Sandbox, or agent-browser
+- Deploying or configuring applications through Vercel CLI or the REST API
+- Testing local, preview, or production frontends
+- Accessing protected Vercel deployments in automated or browser-based checks
+- A task involves only one of these products as well as when several are combined
+
+The skill prefers Eve for new AI agents, uses `agent-browser` for manual frontend validation, and discovers the exact current guides and API references needed for each task.
+
+---
+
 ### refine
 
-Agent-agnostic branch-finishing workflow. Use `refine` when you want an agent to review the current branch, fix gaps, verify the branch, and ship it through commit, push, and PR update.
+Repository-agnostic branch-finishing workflow. Use `refine` when you want an agent to review the current branch, fix gaps, run the project's own verification, and ship it through commit, push, and PR update.
 
 **Use when:**
 
 - A branch is in progress and needs to be brought to review-ready quality
-- You want review, lint, typecheck, tests, docs, and PR handling done in one pass
+- You want review, project-native checks, tests, docs, and PR handling done in one pass
 - You want the agent to fix issues, not only report them
 - You want the branch committed, pushed, and synced with a PR
 
@@ -28,13 +44,13 @@ Agent-agnostic branch-finishing workflow. Use `refine` when you want an agent to
 | `vercel-react-native-skills` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills --skill react-native-guidelines` |
 | `web-design-guidelines` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) | `npx skills add vercel-labs/agent-skills --skill web-design-guidelines` |
 
-See [`skills/refine/`](skills/refine/) for the full branch-finishing workflow and usage examples.
+See [`skills/refine/SKILL.md`](skills/refine/SKILL.md) for the full branch-finishing workflow.
 
 ---
 
 ### agent-best-practices
 
-Field-tested engineering principles. Contains 40+ rules across 12 categories, distilled from real project experience and hundreds of debugging sessions.
+Evidence-based engineering principles for repository awareness, proportionate verification, scope and authorization discipline, root-cause analysis, regression prevention, current documentation, security, and safe workflows.
 
 **Use when:**
 
@@ -47,46 +63,21 @@ Field-tested engineering principles. Contains 40+ rules across 12 categories, di
 
 **Categories covered:**
 
-- Verification & Testing (Critical)
-- Scope Discipline (Critical)
-- Root Cause Analysis (High)
-- Regression Prevention (High)
-- Clarification Over Assumption (High)
-- Staying Current (High)
-- Simplicity & Performance (Medium)
-- Quality Over Quantity (Medium)
-- Workflow & Automation (Medium)
-- Backward Compatibility (Medium)
-- Security Awareness (Medium)
-- AI Collaboration Principles (Medium)
+- Repository and runtime context
+- Proportionate verification
+- Scope and authorization discipline
+- Root-cause analysis
+- Regression prevention
+- Responsible clarification
+- Current, version-matched sources
+- Simple and measurable quality
+- Safe git and automation workflows
+- Security boundaries
+- Clear collaboration
 
 **Core philosophy:** Never assume. Always verify.
 
 ---
-
-### common-mistakes
-
-Concrete wrong/correct examples of common AI coding agent mistakes. Derived from analysis of 500+ real chat sessions across 21 projects. Contains 25+ rules across 8 categories.
-
-**Use when:**
-
-- Writing code or modifying files
-- Debugging issues
-- Generating output
-- Reviewing AI-generated code
-
-**Categories covered:**
-
-- File & Project Awareness (Critical)
-- Multi-Target Instructions (High)
-- Deprecated APIs (High)
-- Output Formatting (Medium)
-- Debugging Anti-Patterns (Medium)
-- Wrong Optimizations (Medium)
-- Content Integrity (Medium)
-- Security Scope (Medium)
-
-Complements `agent-best-practices` (principles) with specific, actionable anti-patterns.
 
 ## Installation
 
@@ -111,8 +102,10 @@ Each skill contains:
 
 - `SKILL.md` — Instructions for the agent (required)
 - `metadata.json` — Skill metadata (required)
-- `README.md` — Human-readable documentation (optional)
+- `references/` — Detailed guidance loaded only when needed (optional)
+- `scripts/` — Deterministic helpers for repeated or fragile work (optional)
+- `assets/` — Templates or resources used in generated output (optional)
 
 ## License
 
-MIT
+[MIT](LICENSE)
