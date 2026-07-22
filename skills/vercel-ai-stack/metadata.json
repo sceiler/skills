@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "author": "sceiler",
+  "date": "July 2026",
+  "abstract": "Documentation-first workflow for building, reviewing, configuring, deploying, and validating applications across the Vercel AI stack. Routes agents to current, nested official sources for Next.js, Vercel Connect, AI SDK, Workflow SDK, AI Gateway, agent-browser, Eve, Vercel Sandbox, Vercel CLI and REST API, and protected deployments."
+}
