@@ -6,6 +6,21 @@ Skills follow the [Agent Skills](https://agentskills.io/) format and are listed 
 
 ## Available Skills
 
+### vercel-brand-guidelines
+
+Opt-in Vercel brand and visual-language guidance for application UI, product surfaces, reports, calculators, and other frontend work. It reads Vercel's live design skill for every task instead of freezing its rules in this repository.
+
+**Use when:**
+
+- Building, redesigning, or reviewing frontend applications with Vercel as the default visual direction
+- Adapting Tailwind, shadcn, starter templates, or generic component libraries to Vercel's visual language
+- Creating official Vercel-authored reports or decision surfaces that use the published report foundation
+- Validating responsive behavior, themes, hierarchy, interaction, and accessibility against current Vercel guidance
+
+The skill makes Vercel's design direction the default only when it is installed or explicitly selected. It keeps report-only classes and authorship assets out of ordinary product UI and does not add Vercel logos unless official authorship is requested.
+
+---
+
 ### vercel-ai-stack
 
 Documentation-first workflow for building, reviewing, configuring, deploying, and validating applications across the Vercel AI stack. It routes agents to current nested documentation and version-matched local sources instead of relying on stale model knowledge.
@@ -85,6 +100,18 @@ Install all skills from this repo:
 
 ```bash
 npx skills add sceiler/skills
+```
+
+Install only the shareable Vercel AI stack skill:
+
+```bash
+npx skills add sceiler/skills --skill vercel-ai-stack
+```
+
+Install the independent Vercel brand skill:
+
+```bash
+npx skills add sceiler/skills --skill vercel-brand-guidelines
 ```
 
 ## Related Skill Repositories

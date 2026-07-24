@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "author": "sceiler",
+  "date": "July 2026",
+  "abstract": "Opt-in Vercel brand and visual-language guidance for frontend applications, product UI, reports, calculators, and other web surfaces. Routes agents to the current live Vercel Design skill and makes that direction the default only when this skill is installed or selected."
+}
