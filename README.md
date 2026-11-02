@@ -6,6 +6,16 @@ Skills follow the [Agent Skills](https://agentskills.io/) format and are listed 
 
 ## Available Skills
 
+### work-log-review
+
+Research a date range or supplied message links, check existing entries, and stage evidence-based drafts for the [Obsidian Work Log](https://github.com/sceiler/obsidian-work-log) review inbox. Review and submission remain in Obsidian.
+
+The Python helper supports provider-neutral coverage, configurable vault paths, and optional user-local profiles. Keep personal configuration outside this repository.
+
+Install with `npx skills add sceiler/skills --skill work-log-review`.
+
+---
+
 ### vercel-brand-guidelines
 
 Opt-in Vercel brand and visual-language guidance for application UI, product surfaces, reports, calculators, and other frontend work. It reads Vercel's live design skill for every task instead of freezing its rules in this repository.
